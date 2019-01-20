@@ -5,6 +5,41 @@ import sys
 import psutil
 import shutil
 
+
+def duplicate_file(filename):
+	if os.path.isfile(filename):
+		newfile = filename + '.dupl'
+		shutil.copy(filename, newfile)
+		if os.path.exists(newfile):
+			print("Создан файл: {}. Перезагрузка.".format(newfile))
+			return True
+		else:
+			print("Возникли проблемы при создании файла {}.".format(newfile))
+			return False
+	else:
+		return False
+
+
+def sys_info():
+	print("Информация о системе:")
+	print("Платформа: ", sys.platform)
+	print("Система: ", os.name)
+	print("Пользователь: ", os.getlogin())
+	print("Кодировка по-умолчанию: ", sys.getdefaultencoding())
+	print("Текущая директория: ", os.getcwd())
+
+
+def delete_duplicates(dir):
+	count = 0
+	file_list = os.listdir(dir)
+	for f in file_list:
+		fullname = os.path.join(dir, f)  # \ - разделитель в win, / - разд.в unix
+		if fullname.endswith('.dupl'):
+			os.remove(fullname)
+			print("Удален файл: " + fullname)
+			count += 1
+	return count
+
 answer = '' 			# Задаем пустую переменную для цикла while
 fragment = '.dupl'		# назначаем фрагмент имени, который будет добавляться или искаться
 
@@ -32,9 +67,8 @@ while answer != 'q':
 		if do == 1:
 			print('Содержимое текущей директории: ', os.listdir())
 		elif do == 2:
-			print("Платформа: ", sys.platform, "\nСистема: ", os.name)
-			print("Пользователь: ", os.getlogin())
-			print("Кодировка по-умолчанию: ", sys.getdefaultencoding())
+			sys_info()
+
 		elif do == 3:
 			print("ID всех запущенный процессов: ", psutil.pids())
 		elif do == 4:
@@ -44,24 +78,15 @@ while answer != 'q':
 			print("Дублирование всех файлов в папке")
 			file_list = os.listdir()
 			for oldf in file_list:
-				if os.path.isfile(oldf):
-					newfile = oldf + '.dupl'
-					shutil.copy(oldf, newfile)
-					if os.path.exists(newfile):
-						print("Создан файл: {}.".format(newfile))
+				duplicate_file(oldf)
+
 			print("Окончание копирования всех файлов в директории. Перезагрузка")
 		elif do == 6:
 			print("Дублирование указанного файла")
 			filename = input('Введите имя файла: ')
-			if os.path.isfile(filename):
-				newfile = filename + '.dupl'
-				shutil.copy(filename, newfile)
-				if os.path.exists(newfile):
-					print("Создан файл: {}. Перезагрузка.".format(newfile))
-			else:
-				print('Вы ввели имя папки, а не файла. Повторите!')
-				continue
-							
+			if duplicate_file(filename) == False:
+				print("Введены некорректные данные. Перезагрузка")
+
 		elif do == 7:
 			print("Режим удаления дубликатов в выбранной директории: ")
 			dirname = input('Укажите имя директории.\nДля текущей директроии укажите " . ": ')
@@ -81,3 +106,4 @@ while answer != 'q':
 		print("Завершение работы программы")
 	else:
 		print("Некорректный ответ")
+
